@@ -6,7 +6,7 @@ It is a thin client of the [DataPrem REST API](https://api.dataprem.com): each M
 
 Requires the MCP Python SDK 2.x (`mcp>=2.0.0,<3`).
 
-## Tool status (v0.3.3)
+## Tool status (0.4.0)
 
 | Tool | Status | Source |
 |------|--------|--------|

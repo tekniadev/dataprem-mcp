@@ -2,13 +2,13 @@
 
 Notable changes to `dataprem-mcp`. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · semver.
 
-## [0.3.3] — 2026-08-05
+## [0.4.0] — 2026-08-05
 
 ### Changed
 
 - **Every tool now requires an API key.** `dataprem_borme_search`, `dataprem_cendoj_search` and `dataprem_tenders_search` call the API like `dataprem_catastro_lookup` does; until each connector ships, the API answers `not_implemented` and no tool returns data of its own.
 - **Requires the MCP Python SDK 2.x** (`mcp>=2.0.0,<3`). The server now imports `MCPServer` from `mcp.server.mcpserver`, and `host` / `port` are passed to `run()`. Installs pinned to SDK 1.x should stay on 0.3.2.
-- Tool names, signatures and responses are unchanged.
+- Tool names and signatures are unchanged. The three planned tools return an error instead of a payload, so a caller that relied on their demonstration data has to handle `ok: false`.
 - The distribution contains the package, its tests, the README, the changelog and the licence, and nothing else.
 - `LICENSE` ships with the distribution.
 
