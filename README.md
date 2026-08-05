@@ -218,8 +218,8 @@ anyone's machine:
 
 ```bash
 # bump the version in pyproject.toml and add the CHANGELOG entry, then
-git tag v0.3.4
-git push origin v0.3.4
+git tag 0.3.4
+git push origin 0.3.4
 ```
 
 The release workflow builds, checks the artifact, installs the wheel, starts it
