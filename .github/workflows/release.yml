@@ -1,0 +1,46 @@
+name: Release
+
+# Publishing is tied to a tag, so what reaches PyPI is always a commit that
+# exists in the repository under a name.
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      # Trusted publishing: PyPI verifies this workflow through OIDC, so there
+      # is no API token to store or rotate.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.13'
+
+      - run: uv build
+
+      # The same gate as every pull request: no artifact reaches PyPI without
+      # passing it, because that is the one place a mistake cannot be undone.
+      - run: python scripts/check_artifacts.py
+
+      - run: uv venv --allow-existing
+
+      - run: uv pip install dist/*.whl
+
+      - run: .venv/bin/python scripts/smoke_stdio.py
+
+      - name: Refuse to publish a tag that disagrees with the version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          built=$(ls dist/*.whl | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+)-py3.*/\1/')
+          test "$tag" = "$built" || {
+            echo "tag $tag does not match built version $built"
+            exit 1
+          }
+
+      - uses: pypa/gh-action-pypi-publish@release/v1

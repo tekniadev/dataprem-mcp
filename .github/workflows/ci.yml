@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  schedule:
+    # The canary is only useful if it runs without a push. Mondays, 06:00 UTC.
+    - cron: '0 6 * * 1'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - run: uv venv --allow-existing
+
+      - run: uv pip install -e '.[dev]'
+
+      - run: .venv/bin/pytest
+
+      # Starts the installed console script over stdio, like a desktop client.
+      - run: .venv/bin/python scripts/smoke_stdio.py
+
+  package:
+    # Checks the built artifact, not the declaration that produced it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.13'
+
+      - run: uv build
+
+      - run: python scripts/check_artifacts.py
+
+      # The package has to keep working once only the declared files ship.
+      - run: uv venv --allow-existing
+
+      - run: uv pip install dist/*.whl
+
+      - run: .venv/bin/python scripts/smoke_stdio.py
+
+  canary:
+    # Installs the newest SDK regardless of the version cap, so the next
+    # breaking release shows up here instead of in someone's `uvx` run.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.13'
+
+      - run: uv venv --allow-existing
+
+      - run: uv pip install -e .
+
+      - run: uv pip install --upgrade --no-deps mcp
+
+      - run: .venv/bin/python -c "import importlib.metadata as m; print('mcp', m.version('mcp'))"
+
+      - run: .venv/bin/python scripts/smoke_stdio.py

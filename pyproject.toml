@@ -1,0 +1,77 @@
+[project]
+name = "dataprem-mcp"
+version = "0.3.3"
+description = "MCP server exposing Spanish public-data sources (Catastro, BORME, CENDOJ, public tenders) to AI agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    { name = "Teknia", email = "info@dataprem.com" },
+]
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "catastro",
+    "borme",
+    "cendoj",
+    "spain",
+    "open-data",
+    "public-data",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    # Capped at the major: 2.0 renamed FastMCP to MCPServer and moved the module,
+    # which broke every install of 0.3.2. The CI canary job watches the next one.
+    "mcp>=2.0.0,<3",
+    "httpx>=0.27.0",
+]
+
+[project.urls]
+Homepage = "https://dataprem.com"
+Repository = "https://github.com/tekniadev/dataprem-mcp"
+Issues = "https://github.com/tekniadev/dataprem-mcp/issues"
+Changelog = "https://github.com/tekniadev/dataprem-mcp/blob/master/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "respx>=0.21",
+]
+
+[project.scripts]
+dataprem-mcp = "dataprem_mcp.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Declare what ships: left to itself hatchling packs everything it finds.
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/dataprem_mcp",
+    "tests",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dataprem_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
