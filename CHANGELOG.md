@@ -2,6 +2,15 @@
 
 Notable changes to `dataprem-mcp`. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · semver.
 
+## [0.5.0] — 2026-08-06
+
+### Changed
+
+- **The tool descriptions come from a catalogue, not from the docstrings.** Their single source is `config/tools.json` in the DataPrem API, because capabilities are defined by whatever implements them. A copy ships inside the package, and the server prefers `GET /v1/tools` when the API answers — so a description can be improved without publishing a release.
+- **What the API may change, and what it may not.** Only the wording of tools this package implements. It cannot announce a new one: a tool with no handler in the installed wheel would be picked by the model and then fail.
+- **The fallback is silent and deliberate.** `tools/list` runs when a client connects, before anything is asked. An API blip at that moment would otherwise register zero tools and leave the integration looking broken until the client restarts; with the bundled copy the tools are there and a real outage surfaces on the call, where it is legible.
+- Tool names, signatures and schemas are unchanged. `tools/list` returns byte for byte what 0.4.0 returned.
+
 ## [0.4.0] — 2026-08-05
 
 ### Changed
