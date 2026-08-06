@@ -1,0 +1,191 @@
+{
+  "$comment": "Fuente unica del catalogo de tools. Lo consumen dataprem-mcp y el chat. Editar aqui: el MCP lo sirve en tools/list y el chat se lo pasa al LLM en cada turno. Los valores de esta version son los que el MCP generaba a partir de sus firmas Python, copiados sin tocar para que la migracion no cambie nada.",
+  "version": 1,
+  "tools": [
+    {
+      "name": "dataprem_catastro_lookup",
+      "endpoint": "GET /v1/es/catastro/property",
+      "description": "Consulta datos catastrales de un inmueble en el Catastro español.\n\nProvee uno de los dos modos de búsqueda:\n\n* **Por referencia catastral** — pasar `refcat` (14, 18 o 20 caracteres).\n* **Por dirección** — pasar `address` + `city`, opcionalmente `province`.\n\nDevuelve la ficha catastral normalizada: clase, uso, superficies, año de\nconstrucción, dirección con códigos INE, y el desglose de construcciones\n(`constructions[]`) con planta, puerta y superficie por componente.\n\nEl endpoint **no expone titular** (datos personales): el SOAP libre del\nCatastro no lo facilita y la API pública lo descarta por LOPD/GDPR.\nConsulta autorizada con certificado del titular en pipeline futuro.\n\nArgs:\n    refcat: Referencia catastral del inmueble.\n    address: Dirección literal (tipo + nombre + número).\n    city: Municipio.\n    province: Provincia (opcional).\n",
+      "inputSchema": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Address"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "City"
+          },
+          "province": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Province"
+          },
+          "refcat": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Refcat"
+          }
+        },
+        "title": "dataprem_catastro_lookupArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "dataprem_borme_search",
+      "endpoint": "GET /v1/es/borme/search",
+      "description": "Busca actos registrales en el BORME (Boletín Oficial del Registro Mercantil).\n\nPermite localizar inscripciones de constitución, nombramientos, ceses,\nampliaciones de capital y otros actos mercantiles de una empresa.\n\nArgs:\n    company_name: Nombre o razón social de la empresa a buscar.\n    date_from: Fecha de inicio de búsqueda (formato YYYY-MM-DD, opcional).\n    date_to: Fecha de fin de búsqueda (formato YYYY-MM-DD, opcional).\n",
+      "inputSchema": {
+        "properties": {
+          "company_name": {
+            "title": "Company Name",
+            "type": "string"
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Date From"
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Date To"
+          }
+        },
+        "required": [
+          "company_name"
+        ],
+        "title": "dataprem_borme_searchArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "dataprem_cendoj_search",
+      "endpoint": "GET /v1/es/cendoj/search",
+      "description": "Busca resoluciones judiciales en el CENDOJ (Centro de Documentación Judicial).\n\nPermite buscar sentencias, autos y providencias de todos los órdenes\njurisdiccionales españoles.\n\nArgs:\n    query: Términos de búsqueda (texto libre sobre la materia de la resolución).\n    court: Órgano judicial (ej. \"Tribunal Supremo\", \"Audiencia Provincial de Madrid\"). Opcional.\n    date_from: Fecha mínima de la resolución (formato YYYY-MM-DD, opcional).\n",
+      "inputSchema": {
+        "properties": {
+          "court": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Court"
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Date From"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "dataprem_cendoj_searchArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "dataprem_tenders_search",
+      "endpoint": "GET /v1/es/tenders/search",
+      "description": "Busca licitaciones y contratos públicos en España.\n\nConsulta la Plataforma de Contratación del Sector Público para encontrar\nlicitaciones abiertas, adjudicadas o cerradas.\n\nArgs:\n    query: Términos de búsqueda sobre el objeto del contrato.\n    location: Comunidad autónoma o provincia (opcional).\n    status: Estado de la licitación: \"open\" (abierta), \"closed\" (cerrada) o \"all\" (todas). Por defecto \"all\".\n",
+      "inputSchema": {
+        "properties": {
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Location"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "dataprem_tenders_searchArguments",
+        "type": "object"
+      }
+    }
+  ]
+}

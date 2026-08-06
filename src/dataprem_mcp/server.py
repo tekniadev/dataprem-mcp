@@ -12,9 +12,22 @@ from typing import Any
 
 from mcp.server.mcpserver import MCPServer
 
+from dataprem_mcp import catalogue
 from dataprem_mcp.api_client import DatapremApiClient
 
 mcp = MCPServer("DataPrem")
+
+# The names this server can actually run. The catalogue may reword them; it may
+# not add to them, because a tool with no handler here is one the model will
+# pick and then fail to use.
+IMPLEMENTED = {
+    "dataprem_catastro_lookup",
+    "dataprem_borme_search",
+    "dataprem_cendoj_search",
+    "dataprem_tenders_search",
+}
+
+DESCRIPTIONS = catalogue.descriptions(IMPLEMENTED)
 
 
 # ---------------------------------------------------------------------------
@@ -22,7 +35,7 @@ mcp = MCPServer("DataPrem")
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(description=DESCRIPTIONS["dataprem_catastro_lookup"])
 def dataprem_catastro_lookup(
     refcat: str | None = None,
     address: str | None = None,
@@ -61,7 +74,7 @@ def dataprem_catastro_lookup(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(description=DESCRIPTIONS["dataprem_borme_search"])
 def dataprem_borme_search(
     company_name: str,
     date_from: str | None = None,
@@ -86,7 +99,7 @@ def dataprem_borme_search(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(description=DESCRIPTIONS["dataprem_cendoj_search"])
 def dataprem_cendoj_search(
     query: str,
     court: str | None = None,
@@ -111,7 +124,7 @@ def dataprem_cendoj_search(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool()
+@mcp.tool(description=DESCRIPTIONS["dataprem_tenders_search"])
 def dataprem_tenders_search(
     query: str,
     location: str | None = None,
