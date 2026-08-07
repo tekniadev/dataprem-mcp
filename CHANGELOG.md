@@ -2,6 +2,17 @@
 
 Notable changes to `dataprem-mcp`. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · semver.
 
+## [0.6.0] — 2026-08-07
+
+### Changed
+
+- **The province is required when looking a property up by address.** The Catastro refuses the search without it (`error 11: LA PROVINCIA ES OBLIGATORIA`), and the description of `dataprem_catastro_lookup` said it was optional. A model reading that sent `address` + `city`, got a refusal it could not act on, and told the user the address was wrong — which it was not. The API now turns the request away naming the field, and the description here says the three values are needed.
+- Only the wording changed. Tool names, signatures and schemas are what 0.5.0 returned.
+
+### Fixed
+
+- The bundled catalogue no longer describes itself as the source. It is a copy of `config/tools.json` in the DataPrem API, kept as the floor the server falls back to when the API is unreachable; its note used to say "edit here", which is the one thing not to do to a copy. 0.5.0 shipped the old wording, so an installation that could not reach the API handed clients the previous contract.
+
 ## [0.5.0] — 2026-08-06
 
 ### Changed
