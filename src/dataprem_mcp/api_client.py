@@ -67,6 +67,7 @@ class DatapremApiClient:
         company_name: str,
         date_from: str | None = None,
         date_to: str | None = None,
+        act_type: str | None = None,
     ) -> dict[str, Any]:
         """Search company filings in the Spanish commercial registry."""
         params = {"company_name": company_name}
@@ -74,6 +75,8 @@ class DatapremApiClient:
             params["date_from"] = date_from
         if date_to:
             params["date_to"] = date_to
+        if act_type:
+            params["act_type"] = act_type
 
         return self._get_json("/v1/es/borme/search", params=params)
 
