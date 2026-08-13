@@ -1,11 +1,11 @@
 {
-  "$comment": "Copia del catalogo, no la fuente. Se edita en dataprem-api (config/tools.json) y se sincroniza aqui. Sirve de suelo: el servidor pide el catalogo a la API al arrancar y solo cae a este fichero si no la alcanza, de modo que un MCP sin red sigue describiendo sus tools en vez de arrancar mudo.",
+  "$comment": "Fuente unica del catalogo de tools. Lo consumen dataprem-mcp y el chat. Editar aqui: el MCP lo sirve en tools/list y el chat se lo pasa al LLM en cada turno. Los valores de esta version son los que el MCP generaba a partir de sus firmas Python, copiados sin tocar para que la migracion no cambie nada.",
   "version": 1,
   "tools": [
     {
       "name": "dataprem_catastro_lookup",
       "endpoint": "GET /v1/es/catastro/property",
-      "description": "Consulta datos catastrales de un inmueble en el Catastro español.\n\nProvee uno de los dos modos de búsqueda:\n\n* **Por referencia catastral** — pasar `refcat` (14, 18 o 20 caracteres).\n* **Por dirección** — pasar `address` + `city` + `province`. Los tres son\n  obligatorios: el Catastro rechaza la búsqueda sin provincia. Si el usuario\n  no la ha dicho, pregúntasela antes de llamar.\n\nDevuelve la ficha catastral normalizada: clase, uso, superficies, año de\nconstrucción, dirección con códigos INE, y el desglose de construcciones\n(`constructions[]`) con planta, puerta y superficie por componente.\n\nEl endpoint **no expone titular** (datos personales): el SOAP libre del\nCatastro no lo facilita y la API pública lo descarta por LOPD/GDPR.\nConsulta autorizada con certificado del titular en pipeline futuro.\n\nArgs:\n    refcat: Referencia catastral del inmueble.\n    address: Dirección literal (tipo + nombre + número).\n    city: Municipio.\n    province: Provincia. Obligatoria cuando se busca por direccion.\n",
+      "description": "Consulta datos catastrales de un inmueble en el Catastro español.\n\nProvee uno de los dos modos de búsqueda:\n\n* **Por referencia catastral** — pasar `refcat` (14, 18 o 20 caracteres).\n* **Por dirección** — pasar `address` + `city`. La provincia se deduce del\n  municipio y solo hace falta cuando el nombre existe en varias: en ese caso\n  la respuesta es `ambiguous_municipality` con las candidatas, y hay que\n  preguntar al usuario cuál. La dirección admite lenguaje natural, incluidas\n  planta y puerta: \"Av. Tres Cruces 47, puerta 2\".\n\nDevuelve la ficha catastral normalizada: clase, uso, superficies, año de\nconstrucción, dirección con códigos INE, y el desglose de construcciones\n(`constructions[]`) con planta, puerta y superficie por componente.\n\nEl endpoint **no expone titular** (datos personales): el SOAP libre del\nCatastro no lo facilita y la API pública lo descarta por LOPD/GDPR.\nConsulta autorizada con certificado del titular en pipeline futuro.\n\nArgs:\n    refcat: Referencia catastral del inmueble.\n    address: Dirección literal (tipo + nombre + número).\n    city: Municipio.\n    province: Provincia. Solo si el municipio existe en varias.\n",
       "inputSchema": {
         "properties": {
           "address": {
@@ -64,7 +64,7 @@
     {
       "name": "dataprem_borme_search",
       "endpoint": "GET /v1/es/borme/search",
-      "description": "Busca actos registrales en el BORME (Boletín Oficial del Registro Mercantil).\n\nPermite localizar inscripciones de constitución, nombramientos, ceses,\nampliaciones de capital y otros actos mercantiles de una empresa.\n\nArgs:\n    company_name: Nombre o razón social de la empresa a buscar.\n    date_from: Fecha de inicio de búsqueda (formato YYYY-MM-DD, opcional).\n    date_to: Fecha de fin de búsqueda (formato YYYY-MM-DD, opcional).\n",
+      "description": "Busca actos registrales en el BORME (Boletín Oficial del Registro Mercantil).\n\nPermite localizar inscripciones de constitución, nombramientos, ceses,\nampliaciones de capital y otros actos mercantiles de una empresa.\n\nCubre desde el 02-01-2009, que es cuando la edición electrónica pasó a ser la\noficial. Devuelve las más recientes primero.\n\nSi la respuesta trae `meta.has_more` a true hay más de las que caben: acota con\n`date_from`/`date_to` o con `act_type` en vez de pedir una página mayor. Un grupo\ncomo Telefónica tiene miles, y de un año concreto tiene unas trescientas.\n\nArgs:\n    company_name: Nombre o razón social de la empresa a buscar.\n    date_from: Fecha de inicio de búsqueda (formato YYYY-MM-DD, opcional).\n    date_to: Fecha de fin de búsqueda (formato YYYY-MM-DD, opcional).\n    act_type: Tipo de acto, tal como lo escribe el boletín (opcional):\n        Nombramientos, Ceses/Dimisiones, Constitución, Revocaciones,\n        Reelecciones, Ampliación de capital, Reducción de capital,\n        Modificaciones estatutarias, Cambio de domicilio social,\n        Cambio de objeto social, Cambio de denominación social,\n        Declaración de unipersonalidad, Disolución, Extinción,\n        Situación concursal, Fusión por absorción.\n",
       "inputSchema": {
         "properties": {
           "company_name": {
@@ -94,6 +94,18 @@
             ],
             "default": null,
             "title": "Date To"
+          },
+          "act_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Act Type"
           }
         },
         "required": [

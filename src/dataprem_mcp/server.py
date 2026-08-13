@@ -70,7 +70,7 @@ def dataprem_catastro_lookup(
 
 
 # ---------------------------------------------------------------------------
-# Tool: BORME — planned, answered by the API
+# Tool: BORME — answered by the API with data since 2009
 # ---------------------------------------------------------------------------
 
 
@@ -79,19 +79,39 @@ def dataprem_borme_search(
     company_name: str,
     date_from: str | None = None,
     date_to: str | None = None,
+    act_type: str | None = None,
 ) -> dict[str, Any]:
     """Busca actos registrales en el BORME (Boletín Oficial del Registro Mercantil).
 
     Permite localizar inscripciones de constitución, nombramientos, ceses,
     ampliaciones de capital y otros actos mercantiles de una empresa.
 
+    Cubre desde el 02-01-2009, que es cuando la edición electrónica pasó a ser la
+    oficial. Devuelve las más recientes primero.
+
+    Si la respuesta trae `meta.has_more` a true hay más de las que caben: acota con
+    `date_from`/`date_to` o con `act_type` en vez de pedir una página mayor. Un grupo
+    como Telefónica tiene miles, y de un año concreto tiene unas trescientas.
+
     Args:
         company_name: Nombre o razón social de la empresa a buscar.
         date_from: Fecha de inicio de búsqueda (formato YYYY-MM-DD, opcional).
         date_to: Fecha de fin de búsqueda (formato YYYY-MM-DD, opcional).
+        act_type: Tipo de acto, tal como lo escribe el boletín (opcional):
+            Nombramientos, Ceses/Dimisiones, Constitución, Revocaciones,
+            Reelecciones, Ampliación de capital, Reducción de capital,
+            Modificaciones estatutarias, Cambio de domicilio social,
+            Cambio de objeto social, Cambio de denominación social,
+            Declaración de unipersonalidad, Disolución, Extinción,
+            Situación concursal, Fusión por absorción.
     """
     client = DatapremApiClient()
-    return client.search_borme(company_name=company_name, date_from=date_from, date_to=date_to)
+    return client.search_borme(
+        company_name=company_name,
+        date_from=date_from,
+        date_to=date_to,
+        act_type=act_type,
+    )
 
 
 # ---------------------------------------------------------------------------

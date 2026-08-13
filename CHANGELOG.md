@@ -2,6 +2,21 @@
 
 Notable changes to `dataprem-mcp`. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · semver.
 
+## [0.7.0] — 2026-08-13
+
+### Added
+
+- **`act_type` in `dataprem_borme_search`.** Searching a group like Telefónica matches thousands of filings, and the useful question is usually narrower: only the appointments, only the dissolutions. The value is the wording the bulletin itself uses — `Nombramientos`, `Ceses/Dimisiones`, `Constitución`, `Ampliación de capital`… — and the description lists the ones worth asking for.
+- The response carries `meta.has_more`, so a model can say there are more without inventing a figure. It is deliberately not a count: counting a common name takes minutes against seventeen years of bulletin, where the search itself takes a fifth of a second.
+
+### Changed
+
+- The BORME is no longer a planned source. It answers with data from 02-01-2009 onwards, most recent first, and the description says so and tells a model to narrow by date or act type rather than ask for a bigger page.
+
+### Compatibility
+
+- Additive. 0.6.0 keeps working against the same API: it does not send `act_type`, and a request without it behaves exactly as before.
+
 ## [0.6.0] — 2026-08-07
 
 ### Changed

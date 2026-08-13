@@ -199,3 +199,15 @@ def test_env_var_resolution(monkeypatch: pytest.MonkeyPatch) -> None:
     client = DatapremApiClient()
     assert client.base_url == "https://from-env.example"
     assert client.api_key == "dpa_envtoken"
+
+def test_the_act_type_is_only_sent_when_asked_for(respx_mock: respx.MockRouter) -> None:
+    """The MCP already published does not send it, and the API must still answer."""
+    route = respx_mock.get(f"{BASE}/v1/es/borme/search").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+
+    make_client().search_borme(company_name="ACME SL")
+    assert "act_type" not in route.calls.last.request.url.params
+
+    make_client().search_borme(company_name="ACME SL", act_type="Nombramientos")
+    assert route.calls.last.request.url.params["act_type"] == "Nombramientos"

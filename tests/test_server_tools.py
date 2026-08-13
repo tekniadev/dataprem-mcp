@@ -35,7 +35,7 @@ def test_catastro_tool_delegates_to_api_client() -> None:
             server.dataprem_borme_search,
             {"company_name": "ACME SL"},
             "search_borme",
-            {"company_name": "ACME SL", "date_from": None, "date_to": None},
+            {"company_name": "ACME SL", "date_from": None, "date_to": None, "act_type": None},
         ),
         (
             server.dataprem_cendoj_search,
