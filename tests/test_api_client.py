@@ -211,3 +211,20 @@ def test_the_act_type_is_only_sent_when_asked_for(respx_mock: respx.MockRouter) 
 
     make_client().search_borme(company_name="ACME SL", act_type="Nombramientos")
     assert route.calls.last.request.url.params["act_type"] == "Nombramientos"
+
+
+@respx.mock
+def test_borme_limit_travels_to_the_api_only_when_asked_for() -> None:
+    """The chat needs a way to say "show me more" — narrowing by date or act
+    type is the better answer, but a year of a large group is still hundreds.
+    """
+    route = respx.get(f"{BASE}/v1/es/borme/search").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+    client = make_client()
+
+    client.search_borme(company_name="REPSOL", limit=100)
+    assert route.calls.last.request.url.params["limit"] == "100"
+
+    client.search_borme(company_name="REPSOL")
+    assert "limit" not in route.calls.last.request.url.params

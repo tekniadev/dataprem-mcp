@@ -2,6 +2,16 @@
 
 Notable changes to `dataprem-mcp`. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · semver.
 
+## [0.8.0] — 2026-08-14
+
+### Added
+
+- **`limit` in `dataprem_borme_search`.** The API had it — 25 by default, capped at 100 — but the schema never offered it, so when the answer said there were more and the user asked to see them, repeating the call returned the same 25. Narrowing by date or act type is still the better answer, and the description keeps saying so: a year of a large group is hundreds of filings, not tens.
+
+### Changed
+
+- **`act_type` is matched however it is written.** It used to be compared letter by letter, accents and capitals included, and anything else came back as an empty list — which reads as "this company has no such filings". Now it is compared without case or accents, and an unknown type is refused with the list of valid ones instead of silently finding nothing. The description also stops implying there are sixteen types: it names `Otros conceptos`, which is over a million acts on its own.
+
 ## [0.7.0] — 2026-08-13
 
 ### Added
