@@ -80,6 +80,7 @@ def dataprem_borme_search(
     date_from: str | None = None,
     date_to: str | None = None,
     act_type: str | None = None,
+    limit: int | None = None,
 ) -> dict[str, Any]:
     """Busca actos registrales en el BORME (Boletín Oficial del Registro Mercantil).
 
@@ -103,7 +104,12 @@ def dataprem_borme_search(
             Modificaciones estatutarias, Cambio de domicilio social,
             Cambio de objeto social, Cambio de denominación social,
             Declaración de unipersonalidad, Disolución, Extinción,
-            Situación concursal, Fusión por absorción.
+            Situación concursal, Fusión por absorción, Otros conceptos.
+            Se compara sin distinguir mayúsculas ni tildes; si el tipo no
+            existe, la respuesta trae la lista de los válidos.
+        limit: Cuántas devolver. Por defecto 25, como mucho 100. Acotar por
+            fecha o por tipo de acto sigue siendo mejor que pedir más: un año
+            de un grupo grande son cientos de anuncios.
     """
     client = DatapremApiClient()
     return client.search_borme(
@@ -111,6 +117,7 @@ def dataprem_borme_search(
         date_from=date_from,
         date_to=date_to,
         act_type=act_type,
+        limit=limit,
     )
 
 
