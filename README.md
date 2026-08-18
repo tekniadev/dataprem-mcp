@@ -161,8 +161,8 @@ Every parameter is optional on its own, but at least one is required: searching 
 | Parameter | Type | Required |
 |-----------|------|:--------:|
 | `query` | string, words from the object of the contract | no |
-| `organisation` | string, contracting body or part of its name | no |
-| `winner` | string, awarded company by name or NIF | no |
+| `buyer` | string, public body that put the contract out | no |
+| `company` | string, awarded company by name or NIF | no |
 | `cpv` | string, 2 to 10 digits, comma separated | no |
 | `location` | string, city or NUTS code (`ES300`) | no |
 | `status` | `"open"` \| `"closed"` \| `"all"` \| `PRE,PUB,EV,ADJ,RES,ANUL` | no |
@@ -172,7 +172,7 @@ Every parameter is optional on its own, but at least one is required: searching 
 | `date_to` | string YYYY-MM-DD | no |
 | `limit` | integer, 25 by default, capped at 100 | no |
 
-`winner` is the one no other source answers: what a given company has been awarded. `cpv` widens or narrows by how much of the code you give — `45` is every construction contract, `45210000` one kind of building.
+`buyer` is who put the contract out; `company` is who won it — the one no other source answers: what a given firm has been awarded. `cpv` widens or narrows by how much of the code you give — `45` is every construction contract, `45210000` one kind of building.
 
 ## Response shape
 

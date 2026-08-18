@@ -324,9 +324,9 @@ def test_the_new_tender_filters_travel_only_when_asked_for() -> None:
     client = make_client()
 
     client.search_tenders(
-        winner="B15720436",
+        company="B15720436",
         cpv="45,72",
-        organisation="ayuntamiento de valencia",
+        buyer="ayuntamiento de valencia",
         min_amount="50000",
         max_amount="500000",
         date_from="2024-01-01",
@@ -335,9 +335,9 @@ def test_the_new_tender_filters_travel_only_when_asked_for() -> None:
     )
 
     params = route.calls.last.request.url.params
-    assert params["winner"] == "B15720436"
+    assert params["company"] == "B15720436"
     assert params["cpv"] == "45,72"
-    assert params["organisation"] == "ayuntamiento de valencia"
+    assert params["buyer"] == "ayuntamiento de valencia"
     assert params["min_amount"] == "50000"
     assert params["max_amount"] == "500000"
     assert params["date_from"] == "2024-01-01"
@@ -369,6 +369,6 @@ def test_an_empty_string_is_not_sent() -> None:
         return_value=httpx.Response(200, json={"data": []})
     )
 
-    make_client().search_tenders(query="obras", winner="", cpv="")
+    make_client().search_tenders(query="obras", company="", cpv="")
 
     assert set(route.calls.last.request.url.params) == {"query"}

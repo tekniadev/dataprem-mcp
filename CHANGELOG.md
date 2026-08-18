@@ -7,7 +7,7 @@ Notable changes to `dataprem-mcp`. Format: [Keep a Changelog](https://keepachang
 ### Added
 
 - **`dataprem_tenders_search` answers with data.** Spanish public procurement, from the Plataforma de Contratación del Sector Público: what was put out to tender, by whom, for how much, and — where it is settled — who won it and at what price. The three arguments earlier versions send (`query`, `location`, `status`) keep their meaning, and `status` still takes `open`, `closed` and `all` besides the platform's own codes.
-- **Eight more filters on that tool, all optional.** `winner` answers the question no other source does: what a given company has been awarded, by name or by NIF. `cpv` takes 2 to 10 digits, so `45` is every construction contract and `45210000` one kind of building. Then `organisation`, `min_amount`, `max_amount`, `date_from`, `date_to` and `limit`.
+- **Eight more filters on that tool, all optional.** `company` answers the question no other source does: what a given firm has been awarded, by name or by NIF. `cpv` takes 2 to 10 digits, so `45` is every construction contract and `45210000` one kind of building. Then `buyer` — the public body that put the contract out —, `min_amount`, `max_amount`, `date_from`, `date_to` and `limit`.
 
 ### Fixed
 

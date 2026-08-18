@@ -156,8 +156,8 @@ def dataprem_tenders_search(
     query: str | None = None,
     location: str | None = None,
     status: str | None = None,
-    organisation: str | None = None,
-    winner: str | None = None,
+    buyer: str | None = None,
+    company: str | None = None,
     cpv: str | None = None,
     min_amount: str | None = None,
     max_amount: str | None = None,
@@ -177,11 +177,11 @@ def dataprem_tenders_search(
     acotar sin adivinar.
 
     Args:
-        query: Términos sobre el objeto del contrato.
+        query: Términos sobre el objeto del contrato. Casan palabra a palabra, sin acentos y en minúsculas.
         location: Provincia, ciudad o código NUTS (ES300).
         status: "open", "closed", "all", o los códigos PRE, PUB, EV, ADJ, RES, ANUL separados por comas.
-        organisation: Órgano de contratación, o parte de su nombre.
-        winner: Empresa adjudicataria, por nombre o por NIF. Responde "qué se ha llevado esta empresa".
+        buyer: Organismo público que saca el concurso, o parte de su nombre.
+        company: Empresa adjudicataria, por nombre o por NIF. Responde "qué se ha llevado esta empresa".
         cpv: Código CPV o su prefijo, de 2 a 10 dígitos, separados por comas. 45 es toda la construcción.
         min_amount: Presupuesto mínimo sin impuestos, en euros.
         max_amount: Presupuesto máximo sin impuestos, en euros.
@@ -194,8 +194,8 @@ def dataprem_tenders_search(
         query=query,
         location=location,
         status=status,
-        organisation=organisation,
-        winner=winner,
+        buyer=buyer,
+        company=company,
         cpv=cpv,
         min_amount=min_amount,
         max_amount=max_amount,
