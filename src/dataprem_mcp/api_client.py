@@ -100,16 +100,41 @@ class DatapremApiClient:
 
     def search_tenders(
         self,
-        query: str,
+        query: str | None = None,
         location: str | None = None,
         status: str | None = None,
+        buyer: str | None = None,
+        company: str | None = None,
+        cpv: str | None = None,
+        min_amount: str | None = None,
+        max_amount: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        limit: int | None = None,
     ) -> dict[str, Any]:
-        """Search Spanish public tenders and awarded contracts."""
-        params = {"query": query}
-        if location:
-            params["location"] = location
-        if status:
-            params["status"] = status
+        """Search Spanish public tenders and awarded contracts.
+
+        `query`, `location` and `status` are the three the published versions of
+        this package already send, and they keep their meaning.
+        """
+        params: dict[str, Any] = {}
+        for name, value in (
+            ("query", query),
+            ("location", location),
+            ("status", status),
+            ("buyer", buyer),
+            ("company", company),
+            ("cpv", cpv),
+            ("min_amount", min_amount),
+            ("max_amount", max_amount),
+            ("date_from", date_from),
+            ("date_to", date_to),
+            ("limit", limit),
+        ):
+            # Not `if value`: zero is falsy in Python, and `max_amount=0` is a
+            # filter the API accepts and answers.
+            if value is not None and value != "":
+                params[name] = value
 
         return self._get_json("/v1/es/tenders/search", params=params)
 
@@ -155,7 +180,14 @@ class DatapremApiClient:
                     "error": "bad_response",
                     "message": "DataPrem API returned non-JSON 200.",
                 }
-            return {"ok": True, "data": payload.get("data", payload)}
+            answer: dict[str, Any] = {"ok": True, "data": payload.get("data", payload)}
+
+            # Without meta the model never learns there are more results, nor
+            # which years hold them, so narrowing stays guesswork.
+            if isinstance(payload, dict) and isinstance(payload.get("meta"), dict):
+                answer["meta"] = payload["meta"]
+
+            return answer
 
         if status == 401:
             return {
@@ -166,6 +198,22 @@ class DatapremApiClient:
                     "https://dataprem.com and update DATAPREM_API_KEY."
                 ),
             }
+
+        if status == 400:
+            # The API answers a bad value with the list of good ones. Losing it
+            # here leaves the model to guess the same wrong word again.
+            body = _safe_body(response)
+            answer: dict[str, Any] = {
+                "ok": False,
+                "error": body.get("error", "invalid_request"),
+                "message": _safe_message(response, default="The request was rejected as invalid."),
+            }
+
+            for key in ("field", "statuses", "act_types"):
+                if key in body:
+                    answer[key] = body[key]
+
+            return answer
 
         if status == 404:
             return {

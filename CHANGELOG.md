@@ -2,6 +2,18 @@
 
 Notable changes to `dataprem-mcp`. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · semver.
 
+## [0.9.0] — 2026-08-18
+
+### Added
+
+- **`dataprem_tenders_search` answers with data.** Spanish public procurement, from the Plataforma de Contratación del Sector Público: what was put out to tender, by whom, for how much, and — where it is settled — who won it and at what price. The three arguments earlier versions send (`query`, `location`, `status`) keep their meaning, and `status` still takes `open`, `closed` and `all` besides the platform's own codes.
+- **Eight more filters on that tool, all optional.** `company` answers the question no other source does: what a given firm has been awarded, by name or by NIF. `cpv` takes 2 to 10 digits, so `45` is every construction contract and `45210000` one kind of building. Then `buyer` — the public body that put the contract out —, `min_amount`, `max_amount`, `date_from`, `date_to` and `limit`.
+
+### Fixed
+
+- **`meta` reaches the model.** The client kept `data` and dropped everything else, so `meta.has_more` and `meta.years` — announced in 0.7.0 — never left the API. A model could not say there were more results, nor which years held them, and narrowing was guesswork.
+- **A rejected value comes back with the valid ones.** The API answers an unknown status or act type with the list of good ones; the client turned that into a bare `HTTP 400`, leaving the model to guess the same wrong word again.
+
 ## [0.8.0] — 2026-08-14
 
 ### Added

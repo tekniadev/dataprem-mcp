@@ -153,19 +153,53 @@ def dataprem_cendoj_search(
 
 @mcp.tool(description=DESCRIPTIONS["dataprem_tenders_search"])
 def dataprem_tenders_search(
-    query: str,
+    query: str | None = None,
     location: str | None = None,
     status: str | None = None,
+    buyer: str | None = None,
+    company: str | None = None,
+    cpv: str | None = None,
+    min_amount: str | None = None,
+    max_amount: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    limit: int | None = None,
 ) -> dict[str, Any]:
     """Busca licitaciones y contratos públicos en España.
 
-    Consulta la Plataforma de Contratación del Sector Público para encontrar
-    licitaciones abiertas, adjudicadas o cerradas.
+    Consulta la Plataforma de Contratación del Sector Público: licitaciones
+    publicadas, en evaluación, adjudicadas o resueltas, con quién las ganó y
+    por cuánto. Al menos un filtro es obligatorio: buscarlo todo no es una
+    búsqueda.
+
+    Buscar sin acentos y en minúsculas encuentra igual. `meta.has_more` dice si
+    hay más resultados sin contarlos, y `meta.years` en qué años los hay, para
+    acotar sin adivinar.
 
     Args:
-        query: Términos de búsqueda sobre el objeto del contrato.
-        location: Comunidad autónoma o provincia (opcional).
-        status: Estado de la licitación: "open" (abierta), "closed" (cerrada) o "all" (todas). Por defecto "all".
+        query: Términos sobre el objeto del contrato. Casan palabra a palabra, sin acentos y en minúsculas.
+        location: Provincia, ciudad o código NUTS (ES300).
+        status: "open", "closed", "all", o los códigos PRE, PUB, EV, ADJ, RES, ANUL separados por comas.
+        buyer: Organismo público que saca el concurso, o parte de su nombre.
+        company: Empresa adjudicataria, por nombre o por NIF. Responde "qué se ha llevado esta empresa".
+        cpv: Código CPV o su prefijo, de 2 a 10 dígitos, separados por comas. 45 es toda la construcción.
+        min_amount: Presupuesto mínimo sin impuestos, en euros.
+        max_amount: Presupuesto máximo sin impuestos, en euros.
+        date_from: Fecha de publicación más antigua (Y-m-d).
+        date_to: Fecha de publicación más reciente (Y-m-d).
+        limit: Cuántas devolver. Por defecto 25, tope 100.
     """
     client = DatapremApiClient()
-    return client.search_tenders(query=query, location=location, status=status)
+    return client.search_tenders(
+        query=query,
+        location=location,
+        status=status,
+        buyer=buyer,
+        company=company,
+        cpv=cpv,
+        min_amount=min_amount,
+        max_amount=max_amount,
+        date_from=date_from,
+        date_to=date_to,
+        limit=limit,
+    )

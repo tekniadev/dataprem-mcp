@@ -11,9 +11,9 @@ Requires the MCP Python SDK 2.x (`mcp>=2.0.0,<3`).
 | Tool | Status | Source |
 |------|--------|--------|
 | `dataprem_catastro_lookup` | **Live** | Sede Electrónica del Catastro |
-| `dataprem_borme_search` | Planned | Boletín Oficial del Registro Mercantil |
+| `dataprem_borme_search` | **Live** | Boletín Oficial del Registro Mercantil |
+| `dataprem_tenders_search` | **Live** | Plataforma de Contratación del Sector Público |
 | `dataprem_cendoj_search` | Planned | Centro de Documentación Judicial |
-| `dataprem_tenders_search` | Planned | Plataforma de Contratación del Sector Público |
 
 Planned tools are in the catalogue so an agent can discover them, and they call the API like every other tool. Until a connector ships the API answers `not_implemented`, so no tool ever returns data that is not real.
 
@@ -154,13 +154,25 @@ Returns the normalised cadastral record (class, use, surfaces, year of construct
 | `court` | string | no |
 | `date_from` | string YYYY-MM-DD | no |
 
-### `dataprem_tenders_search` (planned)
+### `dataprem_tenders_search`
+
+Every parameter is optional on its own, but at least one is required: searching for everything is not a search.
 
 | Parameter | Type | Required |
 |-----------|------|:--------:|
-| `query` | string | yes |
-| `location` | string | no |
-| `status` | `"open"` \| `"closed"` \| `"all"` | no |
+| `query` | string, words from the object of the contract | no |
+| `buyer` | string, public body that put the contract out | no |
+| `company` | string, awarded company by name or NIF | no |
+| `cpv` | string, 2 to 10 digits, comma separated | no |
+| `location` | string, city or NUTS code (`ES300`) | no |
+| `status` | `"open"` \| `"closed"` \| `"all"` \| `PRE,PUB,EV,ADJ,RES,ANUL` | no |
+| `min_amount` | string, euros without tax | no |
+| `max_amount` | string, euros without tax | no |
+| `date_from` | string YYYY-MM-DD | no |
+| `date_to` | string YYYY-MM-DD | no |
+| `limit` | integer, 25 by default, capped at 100 | no |
+
+`buyer` is who put the contract out; `company` is who won it — the one no other source answers: what a given firm has been awarded. `cpv` widens or narrows by how much of the code you give — `45` is every construction contract, `45210000` one kind of building.
 
 ## Response shape
 
@@ -172,11 +184,26 @@ Every tool returns a `dict` marking success or failure with `ok`:
 { "ok": false, "error": "unauthorized", "message": "API key invalid or revoked..." }
 ```
 
+A search also carries `meta`, which says what the results alone do not: that there are more of them, and which years hold them, so narrowing is not guesswork.
+
+```json
+{ "ok": true,
+  "meta": { "count": 25, "has_more": true, "years": [2024, 2025, 2026] },
+  "data": [ ... ] }
+```
+
+A value the API refuses comes back with the ones it accepts, rather than as a bare failure:
+
+```json
+{ "ok": false, "error": "invalid_request", "message": "Unknown tender status \"ABIERTA\".",
+  "statuses": ["PRE", "PUB", "EV", "ADJ", "RES", "ANUL"] }
+```
+
 A **planned** source answers without data:
 
 ```json
-{ "ok": false, "error": "not_implemented", "message": "The borme source is not available yet.",
-  "source": "borme" }
+{ "ok": false, "error": "not_implemented", "message": "The cendoj source is not available yet.",
+  "source": "cendoj" }
 ```
 
 Error codes:
