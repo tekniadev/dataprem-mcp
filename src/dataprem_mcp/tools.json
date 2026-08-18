@@ -1,6 +1,6 @@
 {
   "$comment": "Fuente unica del catalogo de tools. Lo consumen dataprem-mcp y el chat. Editar aqui: el MCP lo sirve en tools/list y el chat se lo pasa al LLM en cada turno. Los valores de esta version son los que el MCP generaba a partir de sus firmas Python, copiados sin tocar para que la migracion no cambie nada.",
-  "version": 1,
+  "version": 2,
   "tools": [
     {
       "name": "dataprem_catastro_lookup",
@@ -172,9 +172,21 @@
     {
       "name": "dataprem_tenders_search",
       "endpoint": "GET /v1/es/tenders/search",
-      "description": "Busca licitaciones y contratos públicos en España.\n\nConsulta la Plataforma de Contratación del Sector Público para encontrar\nlicitaciones abiertas, adjudicadas o cerradas.\n\nArgs:\n    query: Términos de búsqueda sobre el objeto del contrato.\n    location: Comunidad autónoma o provincia (opcional).\n    status: Estado de la licitación: \"open\" (abierta), \"closed\" (cerrada) o \"all\" (todas). Por defecto \"all\".\n",
+      "description": "Busca licitaciones y contratos públicos en España.\n\nConsulta la Plataforma de Contratación del Sector Público: licitaciones\npublicadas, en evaluación, adjudicadas o resueltas, con quién las ganó y por\ncuánto. Al menos un filtro es obligatorio: buscarlo todo no es una búsqueda.\n\nArgs:\n    query: Términos sobre el objeto del contrato. Sin acentos y en minúsculas encuentra igual.\n    organisation: Órgano de contratación, o parte de su nombre.\n    winner: Empresa adjudicataria, por nombre o por NIF. Responde \"qué se ha llevado esta empresa\".\n    cpv: Código CPV o su prefijo, de 2 a 10 dígitos, separados por comas. 45 es toda la construcción.\n    location: Provincia, ciudad o código NUTS (ES300).\n    status: \"open\", \"closed\", \"all\", o los códigos PRE, PUB, EV, ADJ, RES, ANUL separados por comas.\n    min_amount: Presupuesto mínimo sin impuestos, en euros.\n    max_amount: Presupuesto máximo sin impuestos, en euros.\n    date_from: Fecha de publicación más antigua (Y-m-d).\n    date_to: Fecha de publicación más reciente (Y-m-d).\n    limit: Cuántas devolver. Por defecto 25, tope 100.\n",
       "inputSchema": {
         "properties": {
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Query"
+          },
           "location": {
             "anyOf": [
               {
@@ -187,10 +199,6 @@
             "default": null,
             "title": "Location"
           },
-          "query": {
-            "title": "Query",
-            "type": "string"
-          },
           "status": {
             "anyOf": [
               {
@@ -202,11 +210,104 @@
             ],
             "default": null,
             "title": "Status"
+          },
+          "organisation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Organisation"
+          },
+          "winner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Winner"
+          },
+          "cpv": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cpv"
+          },
+          "min_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Min Amount"
+          },
+          "max_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Amount"
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Date From"
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Date To"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Limit"
           }
         },
-        "required": [
-          "query"
-        ],
         "title": "dataprem_tenders_searchArguments",
         "type": "object"
       }

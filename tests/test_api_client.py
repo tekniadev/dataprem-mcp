@@ -228,3 +228,121 @@ def test_borme_limit_travels_to_the_api_only_when_asked_for() -> None:
 
     client.search_borme(company_name="REPSOL")
     assert "limit" not in route.calls.last.request.url.params
+
+
+@respx.mock
+def test_meta_reaches_the_model_instead_of_being_dropped() -> None:
+    """Without it the model never learns there are more results, nor which
+    years hold them, so narrowing stays guesswork.
+    """
+    respx.get(f"{BASE}/v1/es/tenders/search").mock(
+        return_value=httpx.Response(
+            200,
+            json={"meta": {"count": 2, "has_more": True, "years": [2024, 2026]}, "data": [1, 2]},
+        )
+    )
+
+    answer = make_client().search_tenders(query="limpieza")
+
+    assert answer["ok"] is True
+    assert answer["data"] == [1, 2]
+    assert answer["meta"]["has_more"] is True
+    assert answer["meta"]["years"] == [2024, 2026]
+
+
+@respx.mock
+def test_a_payload_without_meta_still_answers() -> None:
+    respx.get(f"{BASE}/v1/es/tenders/search").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+
+    assert "meta" not in make_client().search_tenders(query="limpieza")
+
+
+@respx.mock
+def test_a_rejected_value_comes_back_with_the_valid_ones() -> None:
+    """The API answers a bad status with the list of good ones; guessing the
+    same wrong word again is what losing it costs.
+    """
+    respx.get(f"{BASE}/v1/es/tenders/search").mock(
+        return_value=httpx.Response(
+            400,
+            json={
+                "error": "invalid_request",
+                "message": 'Unknown tender status "ABIERTA".',
+                "statuses": ["PRE", "PUB", "EV", "ADJ", "RES", "ANUL"],
+            },
+        )
+    )
+
+    answer = make_client().search_tenders(query="obras", status="ABIERTA")
+
+    assert answer["ok"] is False
+    assert answer["error"] == "invalid_request"
+    assert "ABIERTA" in answer["message"]
+    assert answer["statuses"] == ["PRE", "PUB", "EV", "ADJ", "RES", "ANUL"]
+
+
+@respx.mock
+def test_a_missing_parameter_says_which_one() -> None:
+    respx.get(f"{BASE}/v1/es/borme/search").mock(
+        return_value=httpx.Response(
+            400,
+            json={"error": "missing_parameter", "field": "company_name", "message": "Required."},
+        )
+    )
+
+    answer = make_client().search_borme(company_name="")
+
+    assert answer["error"] == "missing_parameter"
+    assert answer["field"] == "company_name"
+
+
+@respx.mock
+def test_the_three_tender_filters_already_published_keep_working() -> None:
+    """A version of this package installed before today sends only these, and
+    the API has to keep answering it.
+    """
+    route = respx.get(f"{BASE}/v1/es/tenders/search").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+
+    make_client().search_tenders(query="limpieza", location="ES300", status="open")
+
+    params = route.calls.last.request.url.params
+    assert params["query"] == "limpieza"
+    assert params["location"] == "ES300"
+    assert params["status"] == "open"
+    assert "cpv" not in params
+
+
+@respx.mock
+def test_the_new_tender_filters_travel_only_when_asked_for() -> None:
+    route = respx.get(f"{BASE}/v1/es/tenders/search").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+    client = make_client()
+
+    client.search_tenders(
+        winner="B15720436",
+        cpv="45,72",
+        organisation="ayuntamiento de valencia",
+        min_amount="50000",
+        max_amount="500000",
+        date_from="2024-01-01",
+        date_to="2026-08-18",
+        limit=100,
+    )
+
+    params = route.calls.last.request.url.params
+    assert params["winner"] == "B15720436"
+    assert params["cpv"] == "45,72"
+    assert params["organisation"] == "ayuntamiento de valencia"
+    assert params["min_amount"] == "50000"
+    assert params["max_amount"] == "500000"
+    assert params["date_from"] == "2024-01-01"
+    assert params["limit"] == "100"
+    assert "query" not in params
+
+    client.search_tenders(query="obras")
+    assert set(route.calls.last.request.url.params) == {"query"}

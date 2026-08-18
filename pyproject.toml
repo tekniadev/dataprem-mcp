@@ -1,6 +1,6 @@
 [project]
 name = "dataprem-mcp"
-version = "0.8.0"
+version = "0.9.0"
 description = "MCP server exposing Spanish public-data sources (Catastro, BORME, CENDOJ, public tenders) to AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
