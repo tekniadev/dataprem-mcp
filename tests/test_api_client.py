@@ -346,3 +346,29 @@ def test_the_new_tender_filters_travel_only_when_asked_for() -> None:
 
     client.search_tenders(query="obras")
     assert set(route.calls.last.request.url.params) == {"query"}
+
+
+@respx.mock
+def test_a_zero_is_a_filter_and_not_an_absence() -> None:
+    """Zero is falsy in Python; the API takes max_amount=0 and answers it."""
+    route = respx.get(f"{BASE}/v1/es/tenders/search").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+
+    make_client().search_tenders(query="obras", max_amount="0", min_amount="0", limit=0)
+
+    params = route.calls.last.request.url.params
+    assert params["max_amount"] == "0"
+    assert params["min_amount"] == "0"
+    assert params["limit"] == "0"
+
+
+@respx.mock
+def test_an_empty_string_is_not_sent() -> None:
+    route = respx.get(f"{BASE}/v1/es/tenders/search").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+
+    make_client().search_tenders(query="obras", winner="", cpv="")
+
+    assert set(route.calls.last.request.url.params) == {"query"}

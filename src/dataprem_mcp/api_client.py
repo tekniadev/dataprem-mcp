@@ -131,7 +131,9 @@ class DatapremApiClient:
             ("date_to", date_to),
             ("limit", limit),
         ):
-            if value:
+            # Not `if value`: zero is falsy in Python, and `max_amount=0` is a
+            # filter the API accepts and answers.
+            if value is not None and value != "":
                 params[name] = value
 
         return self._get_json("/v1/es/tenders/search", params=params)
