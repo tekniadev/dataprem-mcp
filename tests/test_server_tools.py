@@ -44,10 +44,20 @@ def test_catastro_tool_delegates_to_api_client() -> None:
             },
         ),
         (
-            server.dataprem_cendoj_search,
-            {"query": "despido improcedente"},
-            "search_cendoj",
-            {"query": "despido improcedente", "court": None, "date_from": None},
+            server.dataprem_subsidies_search,
+            {"query": "ayudas a la contratación"},
+            "search_subsidies",
+            {
+                "query": "ayudas a la contratación",
+                "beneficiary": None,
+                "body": None,
+                "level": None,
+                "min_amount": None,
+                "max_amount": None,
+                "date_from": None,
+                "date_to": None,
+                "limit": None,
+            },
         ),
         (
             server.dataprem_tenders_search,
@@ -82,7 +92,7 @@ def test_every_tool_asks_the_api(tool_callable, args, client_method, expected_ca
     "tool_callable,args",
     [
         (server.dataprem_borme_search, {"company_name": "ACME SL"}),
-        (server.dataprem_cendoj_search, {"query": "despido"}),
+        (server.dataprem_subsidies_search, {"query": "autoconsumo"}),
         (server.dataprem_tenders_search, {"query": "limpieza"}),
     ],
 )

@@ -1,6 +1,6 @@
 {
   "$comment": "Fuente unica del catalogo de tools. Lo consumen dataprem-mcp y el chat. Editar aqui: el MCP lo sirve en tools/list y el chat se lo pasa al LLM en cada turno. Los valores de esta version son los que el MCP generaba a partir de sus firmas Python, copiados sin tocar para que la migracion no cambie nada.",
-  "version": 2,
+  "version": 3,
   "tools": [
     {
       "name": "dataprem_catastro_lookup",
@@ -124,48 +124,6 @@
           "company_name"
         ],
         "title": "dataprem_borme_searchArguments",
-        "type": "object"
-      }
-    },
-    {
-      "name": "dataprem_cendoj_search",
-      "endpoint": "GET /v1/es/cendoj/search",
-      "description": "Busca resoluciones judiciales en el CENDOJ (Centro de Documentación Judicial).\n\nPermite buscar sentencias, autos y providencias de todos los órdenes\njurisdiccionales españoles.\n\nArgs:\n    query: Términos de búsqueda (texto libre sobre la materia de la resolución).\n    court: Órgano judicial (ej. \"Tribunal Supremo\", \"Audiencia Provincial de Madrid\"). Opcional.\n    date_from: Fecha mínima de la resolución (formato YYYY-MM-DD, opcional).\n",
-      "inputSchema": {
-        "properties": {
-          "court": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Court"
-          },
-          "date_from": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Date From"
-          },
-          "query": {
-            "title": "Query",
-            "type": "string"
-          }
-        },
-        "required": [
-          "query"
-        ],
-        "title": "dataprem_cendoj_searchArguments",
         "type": "object"
       }
     },
@@ -309,6 +267,125 @@
           }
         },
         "title": "dataprem_tenders_searchArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "dataprem_subsidies_search",
+      "endpoint": "GET /v1/es/subsidies/search",
+      "description": "Busca subvenciones y ayudas públicas españolas concedidas, y quién las recibió.\n\nLos datos salen de la Base de Datos Nacional de Subvenciones. Al menos un\nfiltro es obligatorio: buscarlo todo no es buscar.\n\nArgs:\n    query: Palabras del título de la convocatoria (ej. \"ayudas a la contratación\").\n    beneficiary: Quién recibió el dinero, por nombre o NIF. Las personas físicas\n        llegan seudonimizadas en origen, así que sólo empresas y entidades llevan NIF.\n    body: Órgano que la concedió, o parte de su nombre.\n    level: ESTADO, AUTONOMICA, LOCAL u OTRA —esta última para un órgano\n        que no encaja en ninguna de las tres—, separados por comas.\n    min_amount: Importe mínimo concedido, en euros.\n    max_amount: Importe máximo concedido, en euros.\n    date_from: Fecha mínima de concesión (YYYY-MM-DD).\n    date_to: Fecha máxima de concesión (YYYY-MM-DD).\n    limit: Cuántas devolver. Por defecto 25, tope 100.\n\nAl citar estos datos hay que indicar el origen: Ministerio de Hacienda.\n",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Query"
+          },
+          "beneficiary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Beneficiary"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Body"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Level"
+          },
+          "min_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Min Amount"
+          },
+          "max_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Amount"
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Date From"
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Date To"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Limit"
+          }
+        },
+        "title": "dataprem_subsidies_searchArguments",
         "type": "object"
       }
     }

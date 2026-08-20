@@ -24,7 +24,7 @@ SUPPORTED_TRANSPORTS = ("stdio", "streamable-http")
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="dataprem-mcp",
-        description="DataPrem MCP server (Catastro, BORME, CENDOJ, public tenders).",
+        description="DataPrem MCP server (Catastro, BORME, public tenders, subsidies).",
     )
     parser.add_argument(
         "--transport",
