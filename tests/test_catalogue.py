@@ -103,12 +103,12 @@ def test_an_empty_description_from_the_api_does_not_blank_a_tool(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("DATAPREM_API_KEY", "dpa_test")
-    payload = _api_payload([{"name": "dataprem_cendoj_search", "description": ""}])
+    payload = _api_payload([{"name": "dataprem_subsidies_search", "description": ""}])
 
     with patch.object(catalogue.httpx, "get", return_value=_response(payload)):
         descriptions = catalogue.descriptions(IMPLEMENTED)
 
-    assert descriptions["dataprem_cendoj_search"].startswith("Busca resoluciones judiciales")
+    assert descriptions["dataprem_subsidies_search"].startswith("Busca subvenciones")
 
 
 def test_the_bundled_catalogue_covers_every_implemented_tool() -> None:

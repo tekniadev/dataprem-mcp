@@ -13,9 +13,9 @@ Requires the MCP Python SDK 2.x (`mcp>=2.0.0,<3`).
 | `dataprem_catastro_lookup` | **Live** | Sede Electrónica del Catastro |
 | `dataprem_borme_search` | **Live** | Boletín Oficial del Registro Mercantil |
 | `dataprem_tenders_search` | **Live** | Plataforma de Contratación del Sector Público |
-| `dataprem_cendoj_search` | Planned | Centro de Documentación Judicial |
+| `dataprem_subsidies_search` | **Live** | Base de Datos Nacional de Subvenciones |
 
-Planned tools are in the catalogue so an agent can discover them, and they call the API like every other tool. Until a connector ships the API answers `not_implemented`, so no tool ever returns data that is not real.
+Every tool answers with real data. The subsidies one carries its attribution in `meta.source`: its terms of reuse ask for the origin to be named wherever the data is shown.
 
 ## Getting an API key
 
@@ -138,21 +138,31 @@ Looks up cadastral data for a property. Two modes are supported:
 
 Returns the normalised cadastral record (class, use, surfaces, year of construction, address with INE codes, breakdown of constructions by floor and use). **Does not expose the owner** for LOPD/GDPR reasons.
 
-### `dataprem_borme_search` (planned)
+### `dataprem_borme_search`
 
 | Parameter | Type | Required |
 |-----------|------|:--------:|
 | `company_name` | string | yes |
 | `date_from` | string YYYY-MM-DD | no |
 | `date_to` | string YYYY-MM-DD | no |
+| `act_type` | string | no |
+| `limit` | integer (default 25, max 100) | no |
 
-### `dataprem_cendoj_search` (planned)
+### `dataprem_subsidies_search`
+
+Every parameter is optional on its own, but at least one is required.
 
 | Parameter | Type | Required |
 |-----------|------|:--------:|
-| `query` | string | yes |
-| `court` | string | no |
+| `query` | string | no |
+| `beneficiary` | string (name or NIF) | no |
+| `body` | string | no |
+| `level` | ESTADO / AUTONOMICA / LOCAL | no |
+| `min_amount` | string | no |
+| `max_amount` | string | no |
 | `date_from` | string YYYY-MM-DD | no |
+| `date_to` | string YYYY-MM-DD | no |
+| `limit` | integer (default 25, max 100) | no |
 
 ### `dataprem_tenders_search`
 
@@ -199,11 +209,12 @@ A value the API refuses comes back with the ones it accepts, rather than as a ba
   "statuses": ["PRE", "PUB", "EV", "ADJ", "RES", "ANUL"] }
 ```
 
-A **planned** source answers without data:
+A search with nothing to narrow by is refused, and the answer says what it takes:
 
 ```json
-{ "ok": false, "error": "not_implemented", "message": "The cendoj source is not available yet.",
-  "source": "cendoj" }
+{ "ok": false, "error": "invalid_request",
+  "message": "A subsidy search needs something to narrow by: text, a beneficiary, a granting body, a level, an amount or a date.",
+  "levels": ["ESTADO", "AUTONOMICA", "LOCAL", "OTRA"] }
 ```
 
 Error codes:

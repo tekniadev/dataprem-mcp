@@ -83,20 +83,35 @@ class DatapremApiClient:
 
         return self._get_json("/v1/es/borme/search", params=params)
 
-    def search_cendoj(
+    def search_subsidies(
         self,
-        query: str,
-        court: str | None = None,
+        query: str | None = None,
+        beneficiary: str | None = None,
+        body: str | None = None,
+        level: str | None = None,
+        min_amount: str | None = None,
+        max_amount: str | None = None,
         date_from: str | None = None,
+        date_to: str | None = None,
+        limit: int | None = None,
     ) -> dict[str, Any]:
-        """Search Spanish court decisions."""
-        params = {"query": query}
-        if court:
-            params["court"] = court
-        if date_from:
-            params["date_from"] = date_from
+        """Search Spanish public subsidies and who received them."""
+        params: dict[str, Any] = {}
+        for name, value in (
+            ("query", query),
+            ("beneficiary", beneficiary),
+            ("body", body),
+            ("level", level),
+            ("min_amount", min_amount),
+            ("max_amount", max_amount),
+            ("date_from", date_from),
+            ("date_to", date_to),
+            ("limit", limit),
+        ):
+            if value:
+                params[name] = value
 
-        return self._get_json("/v1/es/cendoj/search", params=params)
+        return self._get_json("/v1/es/subsidies/search", params=params)
 
     def search_tenders(
         self,

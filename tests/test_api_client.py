@@ -124,7 +124,7 @@ def test_validation_message_uses_upstream_text_when_present() -> None:
     "method,kwargs,path",
     [
         ("search_borme", {"company_name": "ACME SL"}, "/v1/es/borme/search"),
-        ("search_cendoj", {"query": "despido"}, "/v1/es/cendoj/search"),
+        ("search_subsidies", {"query": "autoconsumo"}, "/v1/es/subsidies/search"),
         ("search_tenders", {"query": "limpieza"}, "/v1/es/tenders/search"),
     ],
 )
@@ -167,7 +167,7 @@ def test_a_planned_source_is_not_reported_as_a_temporary_failure() -> None:
     "method,kwargs",
     [
         ("search_borme", {"company_name": "ACME SL"}),
-        ("search_cendoj", {"query": "despido"}),
+        ("search_subsidies", {"query": "autoconsumo"}),
         ("search_tenders", {"query": "limpieza"}),
     ],
 )

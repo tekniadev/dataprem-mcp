@@ -1,9 +1,8 @@
 """DataPrem MCP Server.
 
-Exposes Spanish public data sources (Catastro, BORME, CENDOJ, Licitaciones)
-as MCP tools for AI agents. Catastro is wired against the real DataPrem REST
-API (`api.dataprem.com`); the rest are stubs scheduled by phase — see README
-for the live status table.
+Exposes Spanish public data sources (Catastro, BORME, Licitaciones,
+Subvenciones) as MCP tools for AI agents. All four are wired against the real
+DataPrem REST API (`api.dataprem.com`) — see README for the status table.
 """
 
 from __future__ import annotations
@@ -23,8 +22,8 @@ mcp = MCPServer("DataPrem")
 IMPLEMENTED = {
     "dataprem_catastro_lookup",
     "dataprem_borme_search",
-    "dataprem_cendoj_search",
     "dataprem_tenders_search",
+    "dataprem_subsidies_search",
 }
 
 DESCRIPTIONS = catalogue.descriptions(IMPLEMENTED)
@@ -122,28 +121,59 @@ def dataprem_borme_search(
 
 
 # ---------------------------------------------------------------------------
-# Tool: CENDOJ — planned, answered by the API
+# Tool: Subvenciones — REAL (DataPrem API, no stub)
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(description=DESCRIPTIONS["dataprem_cendoj_search"])
-def dataprem_cendoj_search(
-    query: str,
-    court: str | None = None,
+@mcp.tool(description=DESCRIPTIONS["dataprem_subsidies_search"])
+def dataprem_subsidies_search(
+    query: str | None = None,
+    beneficiary: str | None = None,
+    body: str | None = None,
+    level: str | None = None,
+    min_amount: str | None = None,
+    max_amount: str | None = None,
     date_from: str | None = None,
+    date_to: str | None = None,
+    limit: int | None = None,
 ) -> dict[str, Any]:
-    """Busca resoluciones judiciales en el CENDOJ (Centro de Documentación Judicial).
+    """Busca subvenciones y ayudas públicas españolas concedidas, y quién las recibió.
 
-    Permite buscar sentencias, autos y providencias de todos los órdenes
-    jurisdiccionales españoles.
+    Consulta la Base de Datos Nacional de Subvenciones: concesiones con su
+    importe, la convocatoria de la que salen y el órgano que las concede. Al
+    menos un filtro es obligatorio: buscarlo todo no es una búsqueda.
+
+    Buscar sin acentos y en minúsculas encuentra igual. `meta.has_more` dice si
+    hay más de las que caben, y `meta.years` en qué años, para acotar sin
+    adivinar. Al citar estos datos hay que indicar el origen, que viaja en
+    `meta.source`.
 
     Args:
-        query: Términos de búsqueda (texto libre sobre la materia de la resolución).
-        court: Órgano judicial (ej. "Tribunal Supremo", "Audiencia Provincial de Madrid"). Opcional.
-        date_from: Fecha mínima de la resolución (formato YYYY-MM-DD, opcional).
+        query: Palabras del título de la convocatoria (ej. "ayudas a la contratación").
+        beneficiary: Quién recibió el dinero, por nombre o NIF. Las personas
+            físicas llegan seudonimizadas en origen, así que sólo empresas y
+            entidades llevan NIF.
+        body: Órgano que la concedió, o parte de su nombre. También encuentra
+            por comunidad autónoma ("navarra").
+        level: ESTADO, AUTONOMICA o LOCAL, separados por comas.
+        min_amount: Importe mínimo concedido, en euros.
+        max_amount: Importe máximo concedido, en euros.
+        date_from: Fecha mínima de concesión (formato YYYY-MM-DD).
+        date_to: Fecha máxima de concesión (formato YYYY-MM-DD).
+        limit: Cuántas devolver. Por defecto 25, como mucho 100.
     """
     client = DatapremApiClient()
-    return client.search_cendoj(query=query, court=court, date_from=date_from)
+    return client.search_subsidies(
+        query=query,
+        beneficiary=beneficiary,
+        body=body,
+        level=level,
+        min_amount=min_amount,
+        max_amount=max_amount,
+        date_from=date_from,
+        date_to=date_to,
+        limit=limit,
+    )
 
 
 # ---------------------------------------------------------------------------

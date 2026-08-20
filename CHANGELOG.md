@@ -2,6 +2,17 @@
 
 Notable changes to `dataprem-mcp`. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · semver.
 
+## [0.10.0] — 2026-08-20
+
+### Added
+
+- **`dataprem_subsidies_search`, and it answers with data.** Spanish public subsidies and grants from the Base de Datos Nacional de Subvenciones: who received the money, how much, under which call and from which administration. Filters by `query` over the title of the call, `beneficiary` by name or NIF, `body` — which also finds by region, so «navarra» works —, `level` (ESTADO, AUTONOMICA, LOCAL), `min_amount`, `max_amount`, `date_from`, `date_to` and `limit`.
+- **The origin travels with the data.** Its terms of reuse ask for the source to be named wherever it is shown, so every answer carries `meta.source`.
+
+### Removed
+
+- **`dataprem_cendoj_search`.** It was in the catalogue as a planned source, and it is not one: the CENDOJ forbids commercial use and mass download of its database, and reuse needs prior authorisation from the CGPJ. A tool nobody can lawfully implement is not a promise to keep in a catalogue.
+
 ## [0.9.0] — 2026-08-18
 
 ### Added
