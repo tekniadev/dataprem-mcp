@@ -155,7 +155,8 @@ def dataprem_subsidies_search(
             entidades llevan NIF.
         body: Órgano que la concedió, o parte de su nombre. También encuentra
             por comunidad autónoma ("navarra").
-        level: ESTADO, AUTONOMICA o LOCAL, separados por comas.
+        level: ESTADO, AUTONOMICA, LOCAL u OTRA —esta última para un órgano
+            que no encaja en ninguna de las tres—, separados por comas.
         min_amount: Importe mínimo concedido, en euros.
         max_amount: Importe máximo concedido, en euros.
         date_from: Fecha mínima de concesión (formato YYYY-MM-DD).

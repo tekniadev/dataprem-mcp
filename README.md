@@ -157,7 +157,7 @@ Every parameter is optional on its own, but at least one is required.
 | `query` | string | no |
 | `beneficiary` | string (name or NIF) | no |
 | `body` | string | no |
-| `level` | ESTADO / AUTONOMICA / LOCAL | no |
+| `level` | ESTADO / AUTONOMICA / LOCAL / OTRA | no |
 | `min_amount` | string | no |
 | `max_amount` | string | no |
 | `date_from` | string YYYY-MM-DD | no |

@@ -108,7 +108,9 @@ class DatapremApiClient:
             ("date_to", date_to),
             ("limit", limit),
         ):
-            if value:
+            # Not `if value`: a limit of 0 is a value the caller chose, and the
+            # API is the one that says what it does with it.
+            if value is not None and value != "":
                 params[name] = value
 
         return self._get_json("/v1/es/subsidies/search", params=params)
